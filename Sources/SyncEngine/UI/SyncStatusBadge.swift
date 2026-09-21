@@ -7,9 +7,13 @@
 
 import SwiftUI
 
+/// A toolbar-ready badge that reflects the ``SyncEngine`` status and connectivity.
+///
+/// Reads the engine from the SwiftUI environment, so make sure one is injected.
 public struct SyncStatusBadge: View {
     @Environment(SyncEngine.self) private var syncEngine
 
+    /// Creates a sync status badge.
     public init() {}
 
     public var body: some View {

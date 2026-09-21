@@ -2,8 +2,8 @@
 
 A modern, **Offline-First** sync engine built for **SwiftData** and **Swift 6**. Designed with strict concurrency isolation to prevent data races, duplicated records, and sync conflicts.
 
-[![Swift 6.0](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
-[![Platforms](https://img.shields.io/badge/Platforms-iOS%2017%20%7C%20macOS%2014%20%7C%20watchOS%2010%20%7C%20visionOS%201-blue.svg)](https://developer.apple.com/swift/)
+[![Swift Versions](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Flaunchapp-studio%2FSyncEngine%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/launchapp-studio/SyncEngine)
+[![Platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Flaunchapp-studio%2FSyncEngine%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/launchapp-studio/SyncEngine)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---

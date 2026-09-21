@@ -9,7 +9,9 @@ import Foundation
 import Observation
 import SwiftData
 
+/// An error thrown while synchronizing.
 public enum SyncError: LocalizedError, Sendable, Equatable {
+    /// There is no network connection available.
     case networkUnavailable
 
     public var errorDescription: String? {
@@ -20,26 +22,41 @@ public enum SyncError: LocalizedError, Sendable, Equatable {
     }
 }
 
+/// The main entry point for offline-first synchronization.
+///
+/// Inject an instance into your SwiftUI environment and call ``sync()`` to
+/// reconcile local `.pending` records to `.synced`.
 @MainActor
 @Observable
 public final class SyncEngine {
+    /// The observable status of the engine, suitable for driving UI.
     public enum SyncStatus: Sendable, Equatable {
+        /// No sync is in progress.
         case idle
+        /// A sync is currently running.
         case syncing
+        /// The last sync failed with the associated message.
         case error(String)
     }
 
+    /// The current synchronization status.
     public private(set) var status: SyncStatus = .idle
 
     private let databaseActor: DatabaseActor
     private let networkMonitor: NetworkMonitor
     private let stateTracker: SyncStateTracker?
+    /// The configuration the engine was created with.
     public let configuration: SyncConfiguration
 
+    /// Whether the device currently has a network connection.
     public var isConnected: Bool {
         networkMonitor.isConnected
     }
 
+    /// Creates a sync engine bound to a SwiftData container.
+    /// - Parameters:
+    ///   - modelContainer: The container whose records are synchronized.
+    ///   - configuration: The behavior configuration. Defaults to ``SyncConfiguration/default``.
     public init(
         modelContainer: ModelContainer,
         configuration: SyncConfiguration = .default
@@ -52,6 +69,8 @@ public final class SyncEngine {
             : nil
     }
 
+    /// Reconciles every registered model's `.pending` records to `.synced`.
+    /// - Throws: ``SyncError/networkUnavailable`` when offline, or a persistence error.
     public func sync() async throws {
         guard isConnected else {
             let error = SyncError.networkUnavailable
