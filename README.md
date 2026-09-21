@@ -156,9 +156,7 @@ A runnable SwiftUI demo lives in [`Examples/`](Examples/). Open `Examples/SyncEn
 
 ## Advanced Features & Pro Version
 
-Need cross-platform sync (PostgreSQL, Supabase, Web, Android), custom field-level conflict resolution, or an offline resilient mutation queue? 
-
-Check out **SyncEngine Pro** at [https://syncengine.dev](https://syncengine.dev).
+Cross-platform sync (PostgreSQL, Supabase, Web, Android), custom field-level conflict resolution, and an offline resilient mutation queue are planned for **SyncEngine Pro**. Stay tuned.
 
 ---
 
