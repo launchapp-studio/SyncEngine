@@ -17,7 +17,7 @@ A modern, **Offline-First** sync engine built for **SwiftData** and **Swift 6**.
 - **CloudKit Ready:** Pre-configured helpers for native Apple iCloud database synchronization out of the box.
 - **SwiftUI Integration:** Ready-to-use `SyncStatusBadge` component for instant navigation bar state feedback.
 
-> **Note:** The open-source engine tracks the `.conflict` state and reconciles `.pending` records to `.synced`, delegating the actual merge to CloudKit's last-write-wins model. Automatic **field-level conflict detection and resolution** is part of **SyncEngine Pro**.
+> **Note:** The open-source engine tracks the `.conflict` state and reconciles `.pending` records to `.synced`, delegating the actual merge to CloudKit's last-write-wins model. Version-based conflict detection with explicit resolution (keep mine / accept server) is part of **SyncEngine Pro**.
 
 ---
 
@@ -156,7 +156,7 @@ A runnable SwiftUI demo lives in [`Examples/`](Examples/). Open `Examples/SyncEn
 
 ## Advanced Features & Pro Version
 
-Cross-platform sync (PostgreSQL, Supabase, Web, Android), custom field-level conflict resolution, and an offline resilient mutation queue are planned for **SyncEngine Pro**. Stay tuned.
+**SyncEngine Pro** (Early Access) is a commercial add-on that builds on this package. It adds a durable, transactional Outbox, push/pull sync with your own HTTP backend, version-based conflict detection with explicit resolution, and a live debug HUD.
 
 ---
 
