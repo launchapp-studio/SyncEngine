@@ -154,9 +154,24 @@ A runnable SwiftUI demo lives in [`Examples/`](Examples/). Open `Examples/SyncEn
 
 ---
 
-## Advanced Features & Pro Version
+## CloudKit vs. Custom Backends (SyncEngine Pro)
 
-**SyncEngine Pro** (Early Access) is a commercial add-on that builds on this package. It adds a durable, transactional Outbox, push/pull sync with your own HTTP backend, version-based conflict detection with explicit resolution, and a live debug HUD.
+SyncEngine (MIT) is built around Apple's CloudKit. That's ideal for Apple-only sync, but many apps need to sync SwiftData with their own server — one that may also serve web or Android clients.
+
+For those apps there's **SyncEngine Pro**, a commercial add-on built on this package (your `SyncableModel` types carry over) that replaces CloudKit with a durable, transactional Outbox and your own HTTP backend:
+
+| | SyncEngine (Free / MIT) | SyncEngine Pro (Early Access) |
+| :--- | :--- | :--- |
+| **Backend** | Apple CloudKit | **Your own HTTP backend** (documented push/pull contract) |
+| **Delivery** | Managed by CloudKit | **Transactional Outbox**: each change is persisted with its sync intent in the same SwiftData transaction |
+| **Offline & retries** | Managed by the system | **Exponential backoff + dead-letter queue**; outages pause the queue without burning retries |
+| **Conflicts** | CloudKit last-write-wins | **Server-version based**, flagged on the record, resolved with keep mine / accept server |
+| **Poison messages** | N/A | **Isolated**: one bad payload never blocks the rest |
+| **Local dev & testing** | iCloud account required for sync | **In-memory dev server (Node) and `MockTransport`** — no backend needed |
+| **Concurrency** | Swift 6 strict concurrency | Swift 6 strict concurrency |
+| **License** | MIT | Commercial — includes all 0.x and 1.x updates |
+
+**[Get SyncEngine Pro (Early Access) →](https://launchappstudio.lemonsqueezy.com/checkout/buy/15c02c0f-80a0-4a62-9ef1-4cf416413fd9)** — includes the source code archive and read access to the private repository for Swift Package Manager.
 
 ---
 
