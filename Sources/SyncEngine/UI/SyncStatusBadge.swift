@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/// A toolbar-ready badge that reflects the ``SyncEngine`` status and connectivity.
+/// A toolbar-ready badge that reflects the ``SyncEngine`` status, connectivity, and pending records.
 ///
 /// Reads the engine from the SwiftUI environment, so make sure one is injected.
 public struct SyncStatusBadge: View {
@@ -30,6 +30,9 @@ public struct SyncStatusBadge: View {
                         Text("Syncing")
                     }
                     .foregroundStyle(.secondary)
+                case .idle where syncEngine.pendingCount > 0:
+                    Label("\(syncEngine.pendingCount) Pending", systemImage: "clock.fill")
+                        .foregroundStyle(.orange)
                 case .idle:
                     Label("Synced", systemImage: "checkmark.circle.fill")
                         .foregroundStyle(.green)
@@ -49,5 +52,6 @@ public struct SyncStatusBadge: View {
         // Smooth animation between state changes
         .animation(.default, value: syncEngine.status)
         .animation(.default, value: syncEngine.isConnected)
+        .animation(.default, value: syncEngine.pendingCount)
     }
 }

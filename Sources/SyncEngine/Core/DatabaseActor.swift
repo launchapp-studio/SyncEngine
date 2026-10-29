@@ -42,4 +42,14 @@ public actor DatabaseActor {
         )
         return try context.fetch(descriptor)
     }
+
+    /// Counts the `.pending` records of the given type.
+    public nonisolated func pendingCount<T: SyncableModel>(ofType type: T.Type) throws -> Int {
+        let context = ModelContext(modelContainer)
+        let pendingRaw = SyncState.pending.rawValue
+        let descriptor = FetchDescriptor<T>(
+            predicate: #Predicate { $0.syncStateRaw == pendingRaw }
+        )
+        return try context.fetchCount(descriptor)
+    }
 }

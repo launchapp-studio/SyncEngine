@@ -123,6 +123,18 @@ struct ContentView: View {
 }
 ```
 
+The badge shows, in priority order:
+
+| Badge | When |
+| :--- | :--- |
+| **Offline** | No network connection. |
+| **Syncing** | `sync()` is running. |
+| **Error** | The last `sync()` failed. |
+| **N Pending** | Records of your `syncableTypes` are waiting for the next `sync()`. |
+| **Synced** | Nothing left to sync. |
+
+The count is also available as `syncEngine.pendingCount`. It refreshes after every main-context save and every `sync()`; call `refreshPendingCount()` after saving from another context.
+
 ---
 
 ## Example App

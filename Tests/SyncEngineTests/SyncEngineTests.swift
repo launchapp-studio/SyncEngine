@@ -104,3 +104,57 @@ final class SampleTask: SyncableModel {
         #expect(task.syncState == .pending)
     }
 }
+
+// 5. pendingCount reflects pending records and returns to zero after a sync
+@MainActor
+@Test func pendingCountTracksPendingRecordsAcrossSync() async throws {
+    let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: SampleTask.self, configurations: configuration)
+    let actor = DatabaseActor(modelContainer: container)
+    let engine = SyncEngine(
+        modelContainer: container,
+        configuration: SyncConfiguration(syncableTypes: [SampleTask.self])
+    )
+
+    try await actor.savePending(SampleTask(title: "First"))
+    try await actor.savePending(SampleTask(title: "Second"))
+    await engine.refreshPendingCount()
+    #expect(engine.pendingCount == 2)
+
+    try await engine.sync()
+    #expect(engine.pendingCount == 0)
+    #expect(engine.status == .idle)
+}
+
+// 6. A main-context save refreshes pendingCount without a manual call
+@MainActor
+@Test func mainContextSaveRefreshesPendingCount() async throws {
+    let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: SampleTask.self, configurations: configuration)
+    let engine = SyncEngine(
+        modelContainer: container,
+        configuration: SyncConfiguration(syncableTypes: [SampleTask.self])
+    )
+
+    let context = container.mainContext
+    context.insert(SampleTask(title: "Tracked"))
+    try context.save()
+
+    for _ in 0..<100 where engine.pendingCount != 1 {
+        await Task.yield()
+    }
+    #expect(engine.pendingCount == 1)
+}
+
+// 7. Unregistered types are not counted
+@MainActor
+@Test func pendingCountIgnoresUnregisteredTypes() async throws {
+    let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
+    let container = try ModelContainer(for: SampleTask.self, configurations: configuration)
+    let actor = DatabaseActor(modelContainer: container)
+    let engine = SyncEngine(modelContainer: container)
+
+    try await actor.savePending(SampleTask(title: "Unregistered"))
+    await engine.refreshPendingCount()
+    #expect(engine.pendingCount == 0)
+}

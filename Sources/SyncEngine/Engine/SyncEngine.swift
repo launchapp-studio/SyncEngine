@@ -42,9 +42,16 @@ public final class SyncEngine {
     /// The current synchronization status.
     public private(set) var status: SyncStatus = .idle
 
+    /// The number of `.pending` records across ``SyncConfiguration/syncableTypes``.
+    ///
+    /// Refreshed on creation, after every main-context save, and after each ``sync()``.
+    /// Call ``refreshPendingCount()`` after saving from other contexts.
+    public private(set) var pendingCount: Int = 0
+
     private let databaseActor: DatabaseActor
     private let networkMonitor: NetworkMonitor
     private let stateTracker: SyncStateTracker?
+    @ObservationIgnored private nonisolated(unsafe) var didSaveObserver: NSObjectProtocol?
     /// The configuration the engine was created with.
     public let configuration: SyncConfiguration
 
@@ -67,6 +74,29 @@ public final class SyncEngine {
         self.stateTracker = configuration.automaticStateTracking
             ? SyncStateTracker(context: modelContainer.mainContext)
             : nil
+        didSaveObserver = NotificationCenter.default.addObserver(
+            forName: ModelContext.didSave,
+            object: modelContainer.mainContext,
+            queue: nil
+        ) { [weak self] _ in
+            Task { @MainActor in await self?.refreshPendingCount() }
+        }
+        Task { [weak self] in await self?.refreshPendingCount() }
+    }
+
+    deinit {
+        if let didSaveObserver {
+            NotificationCenter.default.removeObserver(didSaveObserver)
+        }
+    }
+
+    /// Recounts the `.pending` records of every registered model type into ``pendingCount``.
+    public func refreshPendingCount() async {
+        var total = 0
+        for modelType in configuration.syncableTypes {
+            total += (try? databaseActor.pendingCount(ofType: modelType)) ?? 0
+        }
+        pendingCount = total
     }
 
     /// Reconciles every registered model's `.pending` records to `.synced`.
@@ -88,8 +118,10 @@ public final class SyncEngine {
 
             resolveConflicts()
 
+            await refreshPendingCount()
             status = .idle
         } catch {
+            await refreshPendingCount()
             status = .error(error.localizedDescription)
             throw error
         }
